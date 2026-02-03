@@ -4,6 +4,8 @@ Selenium-based form submission
 """
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -56,7 +58,12 @@ def create_driver(headless=True):
     if os.path.exists('/usr/bin/google-chrome'):
         options.binary_location = '/usr/bin/google-chrome'
     
-    driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+```
+
+**Also add to your `requirements.txt`:**
+```
+webdriver-manager
     driver.set_script_timeout(30)
     
     # Remove webdriver flag
