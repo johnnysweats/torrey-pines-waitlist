@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torrey Pines Waitlist</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c23 50%, #2d5016 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .golf-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #2d5016;
+        }
+        
+        .tab:not(.active) {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a7c23;
+        }
+        
+        .divider {
+            text-align: center;
+            color: #888;
+            margin: 20px 0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .time-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .time-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .time-option.active {
+            border-color: #4a7c23;
+            background: #f0f7e6;
+        }
+        
+        .time-option span {
+            display: block;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .time-option small {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4a7c23, #2d5016);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 80, 22, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .server-time {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Jobs List */
+        .jobs-section {
+            display: none;
+        }
+        
+        .jobs-section.active {
+            display: block;
+        }
+        
+        .job-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .filter-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .filter-btn.active {
+            background: #4a7c23;
+            color: white;
+        }
+        
+        .job-card {
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .job-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .job-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .job-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .job-status.running {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .job-status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .job-status.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .job-details {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .job-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .job-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .job-btn.edit {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .job-btn.run {
+            background: #4a7c23;
+            color: white;
+        }
+        
+        .job-btn.delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        
+        .empty-state span {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+        
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 200;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .toast.success {
+            background: #28a745;
+        }
+        
+        .toast.error {
+            background: #dc3545;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="golf-icon">⛳</div>
+            <h1>Torrey Pines</h1>
+            <p>Automated Waitlist Assistant</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('booking')">+ New Booking</button>
+            <button class="tab" onclick="showTab('jobs')">📋 My Jobs</button>
+        </div>
+        
+        <!-- Booking Form -->
+        <div id="booking-section" class="card">
+            <form id="booking-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="phone" placeholder="(555) 123-4567" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Course</label>
+                        <select id="course" required>
+                            <option value="">Select...</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="1st Available">1st Available</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Players</label>
+                        <select id="players" required>
+                            <option value="">Select...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="divider">When to run</div>
+                
+                <div class="time-options">
+                    <div class="time-option active" onclick="selectTimeOption('now')">
+                        <span>▶️ Run Now</span>
+                        <small>Execute immediately</small>
+                    </div>
+                    <div class="time-option" onclick="selectTimeOption('schedule')">
+                        <span>🕐 Schedule</span>
+                        <small>Pick a time</small>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="schedule-input" style="display: none;">
+                    <label>Scheduled Time (Pacific)</label>
+                    <input type="datetime-local" id="scheduledTime">
+                    <small style="color: #666; display: block; margin-top: 4px;">
+                        Tip: Waitlist opens 4:30am Mon-Thu, 4:00am Fri-Sun
+                    </small>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    ▶️ Run Now
+                </button>
+                
+                <div class="server-time">
+                    Server Time: <span id="server-time">Loading...</span>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Jobs List -->
+        <div id="jobs-section" class="card jobs-section">
+            <div class="job-filters">
+                <button class="filter-btn active" onclick="filterJobs('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterJobs('completed')">Completed</button>
+                <button class="filter-btn" onclick="filterJobs('all')">All</button>
+            </div>
+            <div id="jobs-list">
+                <div class="empty-state">
+                    <span>📭</span>
+                    <p>No jobs yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Job</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="edit-firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="edit-lastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="edit-email" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="edit-phone" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Course</label>
+                        <select id="edit-course" required>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="1st Available">1st Available</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Players</label>
+                        <select id="edit-players" required>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Scheduled Time</label>
+                    <input type="datetime-local" id="edit-scheduledTime">
+                </div>
+                <button type="submit" class="submit-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let runNow = true;
+        let currentFilter = 'pending';
+        
+        // Tab switching
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('booking-section').style.display = tab === 'booking' ? 'block' : 'none';
+            document.getElementById('jobs-section').classList.toggle('active', tab === 'jobs');
+            
+            if (tab === 'jobs') {
+                loadJobs();
+            }
+        }
+        
+        // Time option selection
+        function selectTimeOption(option) {
+            runNow = option === 'now';
+            document.querySelectorAll('.time-option').forEach(o => o.classList.remove('active'));
+            event.target.closest('.time-option').classList.add('active');
+            
+            document.getElementById('schedule-input').style.display = runNow ? 'none' : 'block';
+            document.getElementById('submit-btn').textContent = runNow ? '▶️ Run Now' : '📅 Schedule Job';
+        }
+        
+        // Server time update
+        async function updateServerTime() {
+            try {
+                const res = await fetch('/api/time');
+                const data = await res.json();
+                document.getElementById('server-time').textContent = data.display;
+            } catch (e) {
+                console.error('Failed to get server time:', e);
+            }
+        }
+        
+        // Form submission
+        document.getElementById('booking-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                course: document.getElementById('course').value,
+                players: document.getElementById('players').value,
+                runNow: runNow,
+                scheduledTime: runNow ? null : document.getElementById('scheduledTime').value
+            };
+            
+            try {
+                const res = await fetch('/api/jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                
+                if (res.ok) {
+                    showToast(runNow ? 'Job started!' : 'Job scheduled!', 'success');
+                    document.getElementById('booking-form').reset();
+                } else {
+                    showToast(result.error || 'Failed to create job', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = runNow ? '▶️ Run Now' : '📅 Schedule Job';
+        });
+        
+        // Load jobs
+        async function loadJobs() {
+            try {
+                const res = await fetch('/api/jobs');
+                const jobs = await res.json();
+                renderJobs(jobs);
+            } catch (e) {
+                console.error('Failed to load jobs:', e);
+            }
+        }
+        
+        // Filter jobs
+        function filterJobs(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            loadJobs();
+        }
+        
+        // Render jobs list
+        function renderJobs(jobs) {
+            const list = document.getElementById('jobs-list');
+            
+            let filtered = jobs;
+            if (currentFilter === 'pending') {
+                filtered = jobs.filter(j => j.status === 'pending' || j.status === 'running');
+            } else if (currentFilter === 'completed') {
+                filtered = jobs.filter(j => j.status === 'completed' || j.status === 'failed');
+            }
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <span>📭</span>
+                        <p>No ${currentFilter} jobs</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = filtered.map(job => `
+                <div class="job-card">
+                    <div class="job-header">
+                        <span class="job-name">${job.first_name} ${job.last_name}</span>
+                        <span class="job-status ${job.status}">${job.status}</span>
+                    </div>
+                    <div class="job-details">
+                        ${job.course} • ${job.players} player${job.players > 1 ? 's' : ''}<br>
+                        ${job.scheduled_time ? 'Scheduled: ' + formatDate(job.scheduled_time) : 'Run immediately'}
+                        ${job.result_message ? '<br><small>' + job.result_message.substring(0, 100) + '</small>' : ''}
+                    </div>
+                    ${job.status === 'pending' ? `
+                        <div class="job-actions">
+                            <button class="job-btn edit" onclick="editJob(${job.id})">Edit</button>
+                            <button class="job-btn run" onclick="runJob(${job.id})">Run Now</button>
+                            <button class="job-btn delete" onclick="deleteJob(${job.id})">Delete</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Format date
+        function formatDate(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+        
+        // Edit job
+        async function editJob(id) {
+            try {
+                const res = await fetch(`/api/jobs/${id}`);
+                const job = await res.json();
+                
+                document.getElementById('edit-id').value = job.id;
+                document.getElementById('edit-firstName').value = job.first_name;
+                document.getElementById('edit-lastName').value = job.last_name;
+                document.getElementById('edit-email').value = job.email;
+                document.getElementById('edit-phone').value = job.phone;
+                document.getElementById('edit-course').value = job.course;
+                document.getElementById('edit-players').value = job.players;
+                document.getElementById('edit-scheduledTime').value = job.scheduled_time || '';
+                
+                document.getElementById('edit-modal').classList.add('show');
+            } catch (e) {
+                showToast('Failed to load job', 'error');
+            }
+        }
+        
+        // Save edit
+        document.getElementById('edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('edit-id').value;
+            const data = {
+                firstName: document.getElementById('edit-firstName').value,
+                lastName: document.getElementById('edit-lastName').value,
+                email: document.getElementById('edit-email').value,
+                phone: document.getElementById('edit-phone').value,
+                course: document.getElementById('edit-course').value,
+                players: document.getElementById('edit-players').value,
+                scheduledTime: document.getElementById('edit-scheduledTime').value
+            };
+            
+            try {
+                const res = await fetch(`/api/jobs/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    showToast('Job updated!', 'success');
+                    closeModal();
+                    loadJobs();
+                } else {
+                    const result = await res.json();
+                    showToast(result.error || 'Failed to update', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        });
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('show');
+        }
+        
+        // Run job now
+        async function runJob(id) {
+            if (!confirm('Run this job now?')) return;
+            
+            try {
+                const res = await fetch(`/api/jobs/${id}/run`, { method: 'POST' });
+                if (res.ok) {
+                    showToast('Job started!', 'success');
+                    loadJobs();
+                } else {
+                    const result = await res.json();
+                    showToast(result.error || 'Failed to run', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+        
+        // Delete job
+        async function deleteJob(id) {
+            if (!confirm('Delete this job?')) return;
+            
+            try {
+                const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('Job deleted', 'success');
+                    loadJobs();
+                } else {
+                    showToast('Failed to delete', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+        
+        // Toast notification
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Initialize
+        updateServerTime();
+        setInterval(updateServerTime, 30000);
+    </script>
+</body>
+</html>
