@@ -76,10 +76,4 @@ def create_driver(headless=True):
         logger.warning(f"Could not set geolocation: {e}")
     
     return driver
-```
 
-Copy everything from `"""Torrey Pines...` down to `return driver` and replace your broken `create_driver` function.
-
-**Also make sure your `requirements.txt` includes:**
-```
-webdriver-manager
