@@ -18,15 +18,12 @@ import os
 
 logger = logging.getLogger(__name__)
 
-# Torrey Pines / La Jolla coordinates
 LATITUDE = 32.8986
 LONGITUDE = -117.2431
 
-# Waitwhile URLs
 WELCOME_URL = "https://waitwhile.com/locations/torreypinesgolf/welcome"
 FORM_URL = "https://waitwhile.com/locations/torreypinesgolf/details?registration=waitlist"
 
-# Course name mapping (form value -> website display value)
 COURSE_MAP = {
     "North": "North",
     "South": "South",
@@ -36,34 +33,45 @@ COURSE_MAP = {
 
 
 def create_driver(headless=True):
-    """Create and configure Chrome WebDriver"""
     options = Options()
     
-    if headless:
-        options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-    
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-software-rasterizer")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--disable-notifications")
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("--disable-translate")
+    options.add_argument("--disable-background-networking")
+    options.add_argument("--disable-sync")
+    options.add_argument("--disable-default-apps")
+    options.add_argument("--disable-hang-monitor")
+    options.add_argument("--disable-prompt-on-repost")
+    options.add_argument("--disable-client-side-phishing-detection")
+    options.add_argument("--disable-component-update")
+    options.add_argument("--disable-domain-reliability")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-zygote")
+    options.add_argument("--single-process")
+    options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
     
-    # Stealth settings
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
     
-    # Chrome binary for Docker/Linux
     if os.path.exists('/usr/bin/google-chrome'):
         options.binary_location = '/usr/bin/google-chrome'
     
     driver = webdriver.Chrome(service=Service('/usr/local/bin/chromedriver'), options=options)
     driver.set_script_timeout(30)
     
-    # Remove webdriver flag
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     
-    # Set geolocation
     try:
         driver.execute_cdp_cmd("Emulation.setGeolocationOverride", {
             "latitude": LATITUDE,
@@ -78,7 +86,6 @@ def create_driver(headless=True):
 
 
 def wait_for_element(driver, by, value, timeout=10, clickable=False):
-    """Wait for an element to be present or clickable"""
     wait = WebDriverWait(driver, timeout)
     if clickable:
         return wait.until(EC.element_to_be_clickable((by, value)))
@@ -86,14 +93,12 @@ def wait_for_element(driver, by, value, timeout=10, clickable=False):
 
 
 def click_element(driver, element):
-    """Click element using JavaScript (more reliable for React)"""
     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
     time.sleep(0.2)
     driver.execute_script("arguments[0].click();", element)
 
 
 def fill_input(driver, element_id, value):
-    """Fill an input field"""
     element = wait_for_element(driver, By.ID, element_id, timeout=5)
     element.clear()
     element.send_keys(value)
@@ -101,13 +106,10 @@ def fill_input(driver, element_id, value):
 
 
 def select_dropdown(driver, input_id, option_text):
-    """Select option from react-select dropdown"""
-    # Click to open dropdown
     input_elem = wait_for_element(driver, By.ID, input_id, timeout=5, clickable=True)
     click_element(driver, input_elem)
     time.sleep(0.3)
     
-    # Find and click option
     option_xpath = f"//div[contains(@class, 'option') and text()='{option_text}']"
     option = wait_for_element(driver, By.XPATH, option_xpath, timeout=5, clickable=True)
     click_element(driver, option)
@@ -117,10 +119,6 @@ def select_dropdown(driver, input_id, option_text):
 
 
 def wait_for_join_button(driver, max_attempts=120, refresh_interval=2):
-    """
-    Wait for the 'Join waitlist' button to become available.
-    Keeps refreshing until the button is clickable.
-    """
     logger.info("Waiting for 'Join waitlist' button...")
     
     for attempt in range(max_attempts):
@@ -140,10 +138,6 @@ def wait_for_join_button(driver, max_attempts=120, refresh_interval=2):
 
 
 def check_submission_result(driver, timeout=15):
-    """
-    Check if form submission was successful.
-    Returns (success, message)
-    """
     start = time.time()
     original_url = driver.current_url
     
@@ -151,7 +145,6 @@ def check_submission_result(driver, timeout=15):
         current_url = driver.current_url
         page_text = driver.page_source.lower()
         
-        # Success indicators
         if any([
             "you're on the list" in page_text,
             "you are on the list" in page_text,
@@ -161,17 +154,14 @@ def check_submission_result(driver, timeout=15):
         ]):
             return True, f"Successfully joined waitlist! URL: {current_url}"
         
-        # Check if URL changed away from registration
         if current_url != original_url and "registration=waitlist" not in current_url:
             return True, f"Form submitted, redirected to: {current_url}"
         
-        # Error indicators
         if "error" in page_text and "try again" in page_text:
             return False, "Submission error detected on page"
         
         time.sleep(0.5)
     
-    # Still on same page = likely failed
     if "registration=waitlist" in driver.current_url:
         return False, "Form did not submit - still on registration page"
     
@@ -179,12 +169,6 @@ def check_submission_result(driver, timeout=15):
 
 
 def run_waitlist_automation(first_name, last_name, email, phone, course, players, headless=True):
-    """
-    Run the complete waitlist automation.
-    
-    Returns:
-        dict with 'status' ('success' or 'error') and 'message'
-    """
     logger.info("=" * 50)
     logger.info("TORREY PINES WAITLIST AUTOMATION")
     logger.info("=" * 50)
@@ -198,25 +182,21 @@ def run_waitlist_automation(first_name, last_name, email, phone, course, players
     driver = None
     
     try:
-        # Step 1: Create browser
         logger.info("[1/6] Starting browser...")
         driver = create_driver(headless=headless)
         logger.info("Browser started")
         
-        # Step 2: Navigate to welcome page
         logger.info("[2/6] Navigating to Torrey Pines waitlist...")
         driver.get(WELCOME_URL)
         wait_for_element(driver, By.TAG_NAME, "body", timeout=10)
         logger.info(f"Page loaded: {driver.current_url}")
         
-        # Step 3: Wait for and click 'Join waitlist' button
         logger.info("[3/6] Waiting for waitlist to open...")
         join_button = wait_for_join_button(driver, max_attempts=120, refresh_interval=2)
         click_element(driver, join_button)
         logger.info("Clicked 'Join waitlist' button")
         time.sleep(1)
         
-        # Step 4: Fill out the form
         logger.info("[4/6] Filling out form...")
         fill_input(driver, "form_firstName", first_name)
         fill_input(driver, "form_lastName", last_name)
@@ -224,17 +204,14 @@ def run_waitlist_automation(first_name, last_name, email, phone, course, players
         fill_input(driver, "form_phone", phone)
         logger.info("Form fields filled")
         
-        # Step 5: Select dropdowns
         logger.info("[5/6] Selecting course and players...")
         website_course = COURSE_MAP.get(course, course)
         select_dropdown(driver, "react-select-2-input", website_course)
         select_dropdown(driver, "react-select-3-input", str(players))
         logger.info("Dropdowns selected")
         
-        # Step 6: Submit the form
         logger.info("[6/6] Submitting form...")
         
-        # Find submit button
         submit_button = wait_for_element(
             driver, 
             By.CSS_SELECTOR, 
@@ -243,29 +220,24 @@ def run_waitlist_automation(first_name, last_name, email, phone, course, players
             clickable=True
         )
         
-        # Check if button is enabled
         if submit_button.get_attribute("disabled"):
             return {
                 'status': 'error',
                 'message': 'Submit button is disabled - waitlist may be closed'
             }
         
-        # Click submit
         pre_submit_url = driver.current_url
         click_element(driver, submit_button)
         logger.info("Clicked submit button")
         
-        # Wait a moment then verify
         time.sleep(2)
         
-        # Check result
         success, message = check_submission_result(driver, timeout=15)
         
         if success:
             logger.info(f"SUCCESS: {message}")
             return {'status': 'success', 'message': message}
         else:
-            # Save debug screenshot
             try:
                 debug_path = f"/tmp/debug_{int(time.time())}.png"
                 driver.save_screenshot(debug_path)
@@ -280,7 +252,6 @@ def run_waitlist_automation(first_name, last_name, email, phone, course, players
         error_msg = f"Automation error: {str(e)}"
         logger.error(f"{error_msg}\n{traceback.format_exc()}")
         
-        # Try to save debug info
         if driver:
             try:
                 debug_path = f"/tmp/error_{int(time.time())}.png"
@@ -300,7 +271,6 @@ def run_waitlist_automation(first_name, last_name, email, phone, course, players
                 pass
 
 
-# Test function
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
@@ -311,7 +281,7 @@ if __name__ == "__main__":
         phone="555-123-4567",
         course="North",
         players="2",
-        headless=False  # Set True for production
+        headless=False
     )
     
     print("\n" + "=" * 50)
