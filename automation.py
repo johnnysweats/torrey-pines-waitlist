@@ -41,22 +41,11 @@ def create_driver(headless=True):
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-software-rasterizer")
     options.add_argument("--disable-extensions")
-    options.add_argument("--disable-infobars")
-    options.add_argument("--disable-notifications")
-    options.add_argument("--disable-popup-blocking")
-    options.add_argument("--disable-translate")
     options.add_argument("--disable-background-networking")
     options.add_argument("--disable-sync")
+    options.add_argument("--disable-translate")
     options.add_argument("--disable-default-apps")
-    options.add_argument("--disable-hang-monitor")
-    options.add_argument("--disable-prompt-on-repost")
-    options.add_argument("--disable-client-side-phishing-detection")
-    options.add_argument("--disable-component-update")
-    options.add_argument("--disable-domain-reliability")
     options.add_argument("--no-first-run")
-    options.add_argument("--no-zygote")
-    options.add_argument("--single-process")
-    options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
@@ -67,7 +56,10 @@ def create_driver(headless=True):
     if os.path.exists('/usr/bin/google-chrome'):
         options.binary_location = '/usr/bin/google-chrome'
     
-    driver = webdriver.Chrome(service=Service('/usr/local/bin/chromedriver'), options=options)
+    service = Service('/usr/local/bin/chromedriver')
+    service.log_path = '/tmp/chromedriver.log'
+    
+    driver = webdriver.Chrome(service=service, options=options)
     driver.set_script_timeout(30)
     
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
