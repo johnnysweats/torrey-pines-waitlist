@@ -318,13 +318,3 @@ if __name__ == "__main__":
     print(f"Status: {result['status']}")
     print(f"Message: {result['message']}")
     print("=" * 50)
-```
-
-**requirements.txt:**
-```
-flask==3.0.0
-selenium==4.16.0
-apscheduler==3.10.4
-sqlalchemy==2.0.23
-pytz==2024.1
-gunicorn==21.2.0
